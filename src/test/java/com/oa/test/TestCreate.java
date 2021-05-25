@@ -26,7 +26,7 @@ public class TestCreate {
         //RepositoryService repositoryService = processEngines.getRepositoryService();
         //repositoryService.createDeployment();
 
-        //1、自定义的方式，配置文件的名字可以自定义,bean的名字也可以自定义
+        //自定义的方式，配置文件的名字可以自定义,bean的名字也可以自定义
         ProcessEngineConfiguration processEngineConfiguration = ProcessEngineConfiguration.
                 createProcessEngineConfigurationFromResource("activiti.cfg.xml", "processEngineConfiguration");
 

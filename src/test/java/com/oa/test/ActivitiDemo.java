@@ -6,9 +6,10 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -178,5 +179,45 @@ public class ActivitiDemo {
         //repositoryService.deleteDeployment(deploymentId);
         //级联删除
         repositoryService.deleteDeployment(deploymentId, true);
+    }
+
+    /**
+     * 下载资源文件
+     * 方案1：使用Activiti提供的api下载资源文件
+     * 方案2：自己写代码从数据库中下载文件，使用jdbc对blob/clob类型数据读取出来，保存到文件目录，解决io操作：commons-io.jar
+     * 这里使用方案1，Activiti提供的api，RepositoryService
+     */
+    @Test
+    public void getDeployment() throws IOException {
+        //1.得到流程引擎
+        ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+        //2.获取api，RepositoryService
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        //3.获取查询对象ProcessDefinitionQuery，查询流程定义信息
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionKey("myEvection")
+                .singleResult();
+        //4.通过流程定义信息，获取部署ID
+        String depolymentId = processDefinition.getDeploymentId();
+        //5.通过RepositoryService，传递部署id参数，读取资源信息（png和bpmn）
+        //5.1获取png图片的流
+        String pngName = processDefinition.getDiagramResourceName();//从流程定义中，获取png图片的目录和名字
+        InputStream pngInput = repositoryService.getResourceAsStream(depolymentId, pngName);//通过部署id和文件名字来获取图片的资源
+        //5.2获取bpmn的流
+        String bpmnName = processDefinition.getResourceName();
+        InputStream bpmnInput = repositoryService.getResourceAsStream(depolymentId, bpmnName);
+        //6.构造OutputStream流
+        File pngFile = new File("D:\\git仓库\\activiti\\src\\main\\resources\\bpmn\\evectionflow01.png");
+        File bpmnFile = new File("D:\\git仓库\\activiti\\src\\main\\resources\\bpmn\\evectionflow01.bpmn");
+        FileOutputStream pngOutStream = new FileOutputStream(pngFile);
+        FileOutputStream bpmnOutStream = new FileOutputStream(bpmnFile);
+        //7.输入流，输出流的转换
+        IOUtils.copy(pngInput, pngOutStream);
+        IOUtils.copy(bpmnInput, bpmnOutStream);
+        //8.关闭流
+        pngInput.close();;
+        pngOutStream.close();
+        bpmnInput.close();
+        bpmnOutStream.close();
     }
 }
