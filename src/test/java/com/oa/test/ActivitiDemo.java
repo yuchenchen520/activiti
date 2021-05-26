@@ -236,7 +236,10 @@ public class ActivitiDemo {
         //获取actinst表的对象
         HistoricActivityInstanceQuery instanceQuery = historyService.createHistoricActivityInstanceQuery();
         //查询actinst表
-        instanceQuery.processInstanceId("2501");
+        //instanceQuery.processInstanceId("2501");//根据InstanceId查询
+        instanceQuery.processDefinitionId("myEvection:1:4");//根据DefinitionId查询
+        //增加排序操作
+        instanceQuery.orderByHistoricActivityInstanceStartTime().asc();
         //查询所有内容
         List<HistoricActivityInstance> historicActivityInstanceList = instanceQuery.list();
         //输出
@@ -248,4 +251,6 @@ public class ActivitiDemo {
             System.out.println("<===========================>");
         }
     }
+
+
 }
